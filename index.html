@@ -592,7 +592,7 @@
             display: block;
             box-shadow: 0 10px 22px -8px rgba(0, 0, 0, 0.55);
         }
-        .stage img, .stage iframe {
+        .stage img {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -646,10 +646,6 @@
             text-transform: uppercase;
             color: #fff;
         }
-        .stage.is-playing::after,
-        .stage.is-playing .disc,
-        .stage.is-playing .runtime,
-        .stage.is-playing img { display: none; }
         .film .eyebrow { color: var(--gold); }
         .film h3 {
             color: #fff;
@@ -851,6 +847,60 @@
             white-space: nowrap;
         }
 
+        body.film-open { overflow: hidden; }
+
+        .film-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: none;
+            place-items: center;
+            padding: 28px 16px;
+            background: rgba(16, 28, 46, 0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .film-overlay.is-open { display: grid; }
+        .film-card {
+            position: relative;
+            width: min(92vw, 960px);
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+        }
+        .film-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+        }
+        .film-frame iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+        }
+        .film-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 50%;
+            background: var(--coral);
+            color: #fff;
+            font: 700 22px/1 var(--sans);
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+        .film-close:hover { background: var(--coral-ink); }
+        .film-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
         @page { size: letter; margin: 0; }
 
         @media print {
@@ -859,11 +909,8 @@
             .toolbar { display: none !important; }
             .sheet { box-shadow: none; break-inside: avoid; }
             .hero-3d, .stage { transform: none !important; }
-            .stage iframe { display: none !important; }
-            .stage.is-playing img,
-            .stage.is-playing .disc,
-            .stage.is-playing .runtime,
-            .stage.is-playing::after { display: block; }
+            .film-overlay { display: none !important; }
+            body.film-open { overflow: visible; }
         }
 
         @media screen and (max-width: 820px) {
@@ -1054,11 +1101,11 @@
                     </div>
                 </div>
                 <div class="film">
-                    <button class="stage" id="stage" type="button">
+                    <button class="stage" id="stage" type="button" aria-haspopup="dialog" aria-controls="film-overlay">
                         <img src="https://i.ytimg.com/vi/-QURzo8PAzI/hqdefault.jpg" alt="" onerror="this.src='images/family.jpg'">
                         <span class="disc" aria-hidden="true"></span>
                         <span class="runtime" aria-hidden="true">Watch</span>
-                        <span class="visually-hidden">Play the sponsorship film</span>
+                        <span class="visually-hidden">Play the sponsorship film in an overlay</span>
                     </button>
                     <div>
                         <p class="eyebrow">The film · literacyoflove.org</p>
@@ -1122,6 +1169,14 @@
             <span>Literacy of Love · USA &amp; Uganda</span>
         </div>
     </article>
+
+    <div class="film-overlay" id="film-overlay" role="dialog" aria-modal="true" aria-labelledby="film-title" hidden>
+        <div class="film-card">
+            <button class="film-close" id="film-close" type="button" aria-label="Close the film">×</button>
+            <div class="film-frame" id="film-mount"></div>
+            <p class="visually-hidden" id="film-title">Sponsorship film · Literacy of Love</p>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
@@ -1228,16 +1283,46 @@
                 .catch(function () { requestAnimationFrame(loop); });
         })();
 
-        document.getElementById("stage").addEventListener("click", function () {
-            if (this.classList.contains("is-playing")) return;
-            var frame = document.createElement("iframe");
-            frame.title = "Sponsorship Commercial Literacy of Love Aug 26";
-            frame.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture; web-share");
-            frame.setAttribute("allowfullscreen", "");
-            frame.src = "https://www.youtube-nocookie.com/embed/-QURzo8PAzI?autoplay=1&rel=0&modestbranding=1&playsinline=1";
-            this.appendChild(frame);
-            this.classList.add("is-playing");
-        });
+        (function () {
+            var VIDEO = "https://www.youtube-nocookie.com/embed/-QURzo8PAzI?autoplay=1&rel=0&modestbranding=1&playsinline=1";
+            var overlay = document.getElementById("film-overlay");
+            var mount = document.getElementById("film-mount");
+            var stage = document.getElementById("stage");
+            var closeBtn = document.getElementById("film-close");
+
+            function openFilm() {
+                var frame = mount.querySelector("iframe");
+                if (!frame) {
+                    frame = document.createElement("iframe");
+                    frame.title = "Sponsorship Commercial Literacy of Love Aug 26";
+                    frame.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture; web-share");
+                    frame.setAttribute("allowfullscreen", "");
+                    mount.appendChild(frame);
+                }
+                frame.src = VIDEO;
+                overlay.hidden = false;
+                overlay.classList.add("is-open");
+                document.body.classList.add("film-open");
+                closeBtn.focus();
+            }
+
+            function closeFilm() {
+                overlay.hidden = true;
+                overlay.classList.remove("is-open");
+                document.body.classList.remove("film-open");
+                mount.innerHTML = "";
+                stage.focus();
+            }
+
+            stage.addEventListener("click", openFilm);
+            closeBtn.addEventListener("click", closeFilm);
+            overlay.addEventListener("click", function (e) {
+                if (e.target === overlay) closeFilm();
+            });
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && overlay.classList.contains("is-open")) closeFilm();
+            });
+        })();
     </script>
 </body>
 </html>

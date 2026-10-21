@@ -852,7 +852,7 @@
         .film-overlay {
             position: fixed;
             inset: 0;
-            z-index: 80;
+            z-index: 9999;
             display: none;
             place-items: center;
             padding: 28px 16px;
@@ -860,7 +860,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        .film-overlay.is-open { display: grid; }
+        .film-overlay.is-open { display: grid !important; }
         .film-card {
             position: relative;
             width: min(92vw, 960px);
@@ -1170,7 +1170,7 @@
         </div>
     </article>
 
-    <div class="film-overlay" id="film-overlay" role="dialog" aria-modal="true" aria-labelledby="film-title" hidden>
+    <div class="film-overlay" id="film-overlay" role="dialog" aria-modal="true" aria-labelledby="film-title" aria-hidden="true">
         <div class="film-card">
             <button class="film-close" id="film-close" type="button" aria-label="Close the film">×</button>
             <div class="film-frame" id="film-mount"></div>
@@ -1178,12 +1178,62 @@
         </div>
     </div>
 
+    <script>
+        (function () {
+            var VIDEO = "https://www.youtube.com/embed/-QURzo8PAzI?autoplay=1&rel=0&modestbranding=1&playsinline=1";
+            if (window.location.protocol !== "file:") {
+                VIDEO += "&enablejsapi=1&origin=" + encodeURIComponent(window.location.origin);
+            }
+            var overlay = document.getElementById("film-overlay");
+            var mount = document.getElementById("film-mount");
+            var stage = document.getElementById("stage");
+            var closeBtn = document.getElementById("film-close");
+            if (!overlay || !mount || !stage || !closeBtn) return;
+
+            function openFilm(e) {
+                if (e) e.preventDefault();
+                overlay.classList.add("is-open");
+                overlay.setAttribute("aria-hidden", "false");
+                document.body.classList.add("film-open");
+                mount.innerHTML = "";
+                var frame = document.createElement("iframe");
+                frame.title = "Sponsorship Commercial Literacy of Love Aug 26";
+                frame.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+                frame.setAttribute("allowfullscreen", "");
+                frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+                frame.src = VIDEO;
+                mount.appendChild(frame);
+            }
+
+            function closeFilm() {
+                overlay.classList.remove("is-open");
+                overlay.setAttribute("aria-hidden", "true");
+                document.body.classList.remove("film-open");
+                mount.innerHTML = "";
+                stage.focus();
+            }
+
+            stage.addEventListener("click", openFilm);
+            closeBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeFilm();
+            });
+            overlay.addEventListener("click", function (e) {
+                if (e.target === overlay) closeFilm();
+            });
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && overlay.classList.contains("is-open")) closeFilm();
+            });
+        })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
     <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
     <script>
         (function () {
             var canvas = document.getElementById("globe");
+            if (!canvas || !canvas.parentNode) return;
             var size = canvas.parentNode.clientWidth;
             var r = size / 2;
             var ratio = 4;
@@ -1281,47 +1331,6 @@
                     requestAnimationFrame(loop);
                 })
                 .catch(function () { requestAnimationFrame(loop); });
-        })();
-
-        (function () {
-            var VIDEO = "https://www.youtube-nocookie.com/embed/-QURzo8PAzI?autoplay=1&rel=0&modestbranding=1&playsinline=1";
-            var overlay = document.getElementById("film-overlay");
-            var mount = document.getElementById("film-mount");
-            var stage = document.getElementById("stage");
-            var closeBtn = document.getElementById("film-close");
-
-            function openFilm() {
-                var frame = mount.querySelector("iframe");
-                if (!frame) {
-                    frame = document.createElement("iframe");
-                    frame.title = "Sponsorship Commercial Literacy of Love Aug 26";
-                    frame.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture; web-share");
-                    frame.setAttribute("allowfullscreen", "");
-                    mount.appendChild(frame);
-                }
-                frame.src = VIDEO;
-                overlay.hidden = false;
-                overlay.classList.add("is-open");
-                document.body.classList.add("film-open");
-                closeBtn.focus();
-            }
-
-            function closeFilm() {
-                overlay.hidden = true;
-                overlay.classList.remove("is-open");
-                document.body.classList.remove("film-open");
-                mount.innerHTML = "";
-                stage.focus();
-            }
-
-            stage.addEventListener("click", openFilm);
-            closeBtn.addEventListener("click", closeFilm);
-            overlay.addEventListener("click", function (e) {
-                if (e.target === overlay) closeFilm();
-            });
-            document.addEventListener("keydown", function (e) {
-                if (e.key === "Escape" && overlay.classList.contains("is-open")) closeFilm();
-            });
         })();
     </script>
 </body>

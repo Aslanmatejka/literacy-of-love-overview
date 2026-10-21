@@ -7,7 +7,7 @@
     <meta name="description" content="A one-page introduction to Literacy of Love for someone meeting the organization for the first time.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,WONK@0,9..144,400..600,0..1;1,9..144,400..500,0..1&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --ink: #101c2e;
@@ -98,7 +98,8 @@
             font-size: 11.5pt;
             line-height: 1.14;
             letter-spacing: -0.02em;
-            font-variation-settings: "opsz" 36;
+            font-feature-settings: "kern" 1, "liga" 1;
+            font-variation-settings: "opsz" 36, "WONK" 0;
         }
 
         /* Section wrapper with left running number */
@@ -274,12 +275,15 @@
             font-weight: 400;
             font-size: 22pt;
             line-height: 1.02;
-            letter-spacing: -0.035em;
-            font-variation-settings: "opsz" 144;
+            letter-spacing: -0.03em;
+            font-feature-settings: "kern" 1, "liga" 1;
+            font-variation-settings: "opsz" 60, "WONK" 0;
         }
         .hero h1 em {
             font-style: italic;
             color: var(--coral);
+            font-feature-settings: "kern" 1, "liga" 1;
+            font-variation-settings: "opsz" 60, "WONK" 0;
         }
         .deck {
             margin-top: 0.1in;
@@ -319,7 +323,8 @@
             line-height: 1.22;
             letter-spacing: -0.015em;
             color: var(--ink);
-            font-variation-settings: "opsz" 72;
+            font-feature-settings: "kern" 1, "liga" 1;
+            font-variation-settings: "opsz" 60, "WONK" 0;
         }
         .quote-band cite {
             display: inline-flex;
@@ -364,7 +369,7 @@
             font-size: 20pt;
             line-height: 0.95;
             letter-spacing: -0.03em;
-            font-variation-settings: "opsz" 144;
+            font-variation-settings: "opsz" 144, "WONK" 0;
         }
         .stat strong sup {
             font-size: 0.5em;
@@ -458,7 +463,7 @@
             font-size: 9pt;
             color: var(--ink);
             letter-spacing: -0.01em;
-            font-variation-settings: "opsz" 72;
+            font-variation-settings: "opsz" 72, "WONK" 0;
         }
 
         /* 05 Pillars (3 pairs) */
@@ -729,7 +734,7 @@
             font-weight: 500;
             letter-spacing: -0.02em;
             white-space: nowrap;
-            font-variation-settings: "opsz" 72;
+            font-variation-settings: "opsz" 72, "WONK" 0;
         }
         .prices li .note {
             opacity: 0.75;
